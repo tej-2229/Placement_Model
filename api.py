@@ -44,6 +44,9 @@ def predict():
             'GenAI': 1 if 'genai' in tech_skills or 'generative ai' in tech_skills else 0,
             'MobileDev': 1 if 'mobile' in tech_skills else 0,
             'WebDev': 1 if 'web' in tech_skills else 0,
+            'CC': 0,
+            'Logical Reasoning': 0, 
+            'NodeJS': 1 if 'node' in tech_skills else 0,
         }
         
        # Convert to DataFrame

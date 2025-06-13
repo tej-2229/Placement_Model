@@ -3,7 +3,7 @@ from sklearn.preprocessing import LabelEncoder
 import numpy as np
 
 # Load Excel file
-file_path = "Student_Placement_Data (1).xlsx"
+file_path = "Student_Placement_Data.xlsx"
 data = pd.read_excel(file_path)
 
 print(data.head())
