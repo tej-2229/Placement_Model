@@ -11,11 +11,9 @@ from sklearn.calibration import CalibratedClassifierCV # type: ignore
 # Load the processed data
 data = pd.read_excel("processed_student_data.xlsx")
 
-# Select features and target
-X = data[['10th Marks', '12th Marks', 'Graduation Marks', 'Technical Score (out of 20)', 'Quants', 'Verbal',
-          'Number of Projects', 'Number of Internships', 'Java', 'Python', 'C++', 'ML', 'AI', 'SQL', 'Tableau',
-          'JavaScript', 'DSA', 'ReactJS', 'MongoDB', 'GenAI', 'MobileDev', 'WebDev']]
+selected_features = pd.read_pickle("selected_features.pkl").tolist()
 
+X = data[selected_features]
 y = data['Placement Status']
 
 # Split data into training and testing sets (stratified for class balance)
@@ -43,10 +41,12 @@ y_prob = model.predict_proba(X_test)[:, 1]
 # Model Evaluation
 accuracy = accuracy_score(y_test, y_pred) * 100
 print(f"Accuracy: {accuracy:.2f}%")
+
 print("Classification Report:\n", classification_report(y_test, y_pred))
 
 # Save the calibrated model
 joblib.dump(calibrated_model, "calibrated_placement_model.pkl")
+
 
 # Function to generate suggestions
 def generate_suggestions(student_data):
@@ -92,32 +92,35 @@ def generate_suggestions(student_data):
     
     return suggestions
 
-# Example student prediction
 test_student = pd.DataFrame({
-    '10th Marks': [85],
+    '10th Marks': [95],
     '12th Marks': [78],
     'Graduation Marks': [80.0],
     'Technical Score (out of 20)': [15],
     'Quants': [18],
-    'Verbal': [17],
+    'Verbal': [16],
     'Number of Projects': [3],
     'Number of Internships': [2],
-    'Java': [1],
-    'Python': [1],
-    'C++': [0],
-    'ML': [0],
-    'AI': [0],
-    'SQL': [0],
-    'Tableau': [1],
     'JavaScript': [0],
+    'ML': [1],
+    'AI': [1],
+    'SQL': [1],
+    'Python': [1],
+    'Tableau': [0],
     'DSA': [1],
-    'ReactJS': [1],
-    'MongoDB': [1],
-    'GenAI': [1],
+    'ReactJS': [0],
+    'NodeJS': [0],            # moved here per order
+    'Java': [1],
+    'C++': [1],
+    'CC': [0],
+    'Logical Reasoning': [0],
+    'GenAI': [0],
     'MobileDev': [0],
-    'WebDev': [1]
+    'WebDev': [1],
+    'MongoDB': [1]
 })
 
+test_student = test_student[selected_features]
 # Load model and predict
 model = joblib.load("placement_model.pkl")
 prediction = model.predict(test_student)
