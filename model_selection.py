@@ -12,14 +12,11 @@ from sklearn.calibration import CalibratedClassifierCV
 import warnings
 warnings.filterwarnings('ignore')
 
-# Load dataset
 data = pd.read_excel("processed_student_data.xlsx")
 
-# Define features and target
 features = ['10th Marks', '12th Marks', 'Graduation Marks', 'Technical Score (out of 20)', 'Quants', 'Verbal',
             'Number of Projects', 'Number of Internships', 'Java', 'Python', 'C++', 'ML', 'AI', 'SQL', 'Tableau',
-            'JavaScript', 'DSA', 'ReactJS', 'MongoDB', 'GenAI', 'MobileDev', 'WebDev', 'Logical Reasoning',
-            'NodeJS', 'CC']
+            'JavaScript', 'DSA', 'ReactJS', 'MongoDB', 'GenAI', 'MobileDev', 'WebDev']
 target = 'Placement Status'
 
 # Split dataset

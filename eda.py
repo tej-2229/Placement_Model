@@ -33,7 +33,7 @@ print("Sorted correlation with Placement Status:")
 print(sorted_correlation)
 sorted_correlation.to_pickle("placement_correlation.pkl")
 
-skills = ['Java', 'Python', 'C++', 'ML', 'AI', 'SQL', 'Tableau', 'JavaScript', 'DSA', 'ReactJS', 'NodeJS', 'GenAI', 'MobileDev', 'WebDev', 'MongoDB', 'CC']
+skills = ['Java', 'Python', 'C++', 'ML', 'AI', 'SQL', 'Tableau', 'JavaScript', 'DSA', 'ReactJS', 'GenAI', 'MobileDev', 'WebDev', 'MongoDB']
 
 # Calculate % of students having each skill in placed and not placed groups
 skill_percentages = {}
@@ -51,7 +51,7 @@ plt.title('Skill Prevalence by Placement Status')
 plt.xticks(rotation=45)
 plt.show()
 
-data[['Logical Reasoning', 'Technical Score (out of 20)', 'Quants']].hist(bins=15, figsize=(12, 8))
+data[['Verbal', 'Technical Score (out of 20)', 'Quants']].hist(bins=15, figsize=(12, 8))
 plt.suptitle('Histograms of Numerical Features')
 plt.show()
 

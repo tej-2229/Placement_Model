@@ -7,20 +7,16 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Load the model
 model = joblib.load("placement_model.pkl")
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Get data from request
         data = request.json
         print("Received data:", data)
 
-        # Process technical skills
         tech_skills = data.get('technicalSkills', '').lower()
 
-        # Map Firebase data to expected ML input format
         ml_input = {
             '10th Marks': data.get('10thMarks', 0),
             '12th Marks': data.get('12thMarks', 0),
@@ -44,25 +40,18 @@ def predict():
             'GenAI': 1 if 'genai' in tech_skills or 'generative ai' in tech_skills else 0,
             'MobileDev': 1 if 'mobile' in tech_skills else 0,
             'WebDev': 1 if 'web' in tech_skills else 0,
-            'CC': 0,
-            'Logical Reasoning': 0, 
-            'NodeJS': 1 if 'node' in tech_skills else 0,
         }
         
-       # Convert to DataFrame
         input_data = pd.DataFrame([ml_input])
         print("DataFrame shape:", input_data.shape)
         print("DataFrame columns:", input_data.columns.tolist())
 
-        # Make prediction
         prediction = model.predict(input_data)[0]
         probability = model.predict_proba(input_data)[0][1] * 100
 
         print(f"\nRaw prediction: {prediction}")      
         print(f"Raw probability: {probability}")     
         
-        # Generate suggestions (copy the function from training.py)
-        #suggestions = generate_suggestions(data)
         suggestions = generate_suggestions(ml_input)
 
         
@@ -75,7 +64,6 @@ def predict():
         print("Prediction error:", e)
         return jsonify({'error': str(e)}), 400
 
-# Copy the generate_suggestions function from training.py here
 def generate_suggestions(student_data):
     suggestions = []
     if student_data['Graduation Marks'] < 70:
