@@ -109,11 +109,8 @@ test_student = pd.DataFrame({
     'Tableau': [0],
     'DSA': [1],
     'ReactJS': [0],
-    'NodeJS': [0],            # moved here per order
     'Java': [1],
     'C++': [1],
-    'CC': [0],
-    'Logical Reasoning': [0],
     'GenAI': [0],
     'MobileDev': [0],
     'WebDev': [1],
@@ -139,3 +136,15 @@ suggestions = generate_suggestions(student_info)
 print("Suggestions:")
 for suggestion in suggestions:
     print(f"- {suggestion}")
+
+from sklearn.model_selection import cross_val_score
+from imblearn.pipeline import Pipeline as ImbPipeline
+
+pipeline = ImbPipeline(steps=[
+    ('smote', SMOTE(random_state=42)),
+    ('model', RandomForestClassifier(n_estimators=100, random_state=42))
+])
+
+scores = cross_val_score(pipeline, X, y, cv=5)
+print("Cross-validation scores:", scores)
+print("Mean accuracy:", scores.mean())

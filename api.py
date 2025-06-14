@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Load trained model and selected feature order
-model = joblib.load("placement_model.pkl")
+model = joblib.load("calibrated_placement_model.pkl")  
 with open("selected_features.pkl", "rb") as f:
     selected_features = pickle.load(f)  # ['Technical Score (out of 20)', 'Verbal', 'Quants', ...]
 
