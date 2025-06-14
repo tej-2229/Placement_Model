@@ -49,6 +49,13 @@ def predict():
         input_df = pd.DataFrame([ml_input])
         input_df = input_df[selected_features]  # This ensures order and feature match
 
+        print("Input features:", list(input_df.columns))
+        print("Input values:", input_df.values.tolist())
+
+        # Check for NaN values
+        if input_df.isnull().any().any():
+            return jsonify({'error': 'Missing values in input'}), 400
+
         # Predict
         prediction = model.predict(input_df)[0]
         probability = model.predict_proba(input_df)[0][1] * 100
