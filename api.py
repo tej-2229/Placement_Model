@@ -8,6 +8,7 @@ app = Flask(__name__)
 CORS(app)
 
 model = joblib.load("placement_model.pkl")
+selected_features = joblib.load("selected_features.pkl") 
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -41,6 +42,12 @@ def predict():
             'MobileDev': 1 if 'mobile' in tech_skills else 0,
             'WebDev': 1 if 'web' in tech_skills else 0,
         }
+
+        for feature in selected_features:
+            if feature not in ml_input:
+                ml_input[feature] = 0
+
+        input_data = pd.DataFrame([ml_input])[selected_features]
         
         input_data = pd.DataFrame([ml_input])
         print("DataFrame shape:", input_data.shape)
