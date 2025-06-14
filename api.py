@@ -1,14 +1,16 @@
 from flask import Flask, request, jsonify
 import pandas as pd
 import joblib
-from collections import Counter
+import pickle
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
+# Load trained model and selected feature order
 model = joblib.load("placement_model.pkl")
-selected_features = joblib.load("selected_features.pkl") 
+with open("selected_features.pkl", "rb") as f:
+    selected_features = pickle.load(f)  # ['Technical Score (out of 20)', 'Verbal', 'Quants', ...]
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -16,60 +18,53 @@ def predict():
         data = request.json
         print("Received data:", data)
 
-        tech_skills = data.get('technicalSkills', '').lower()
+        tech_skills = data.get('technicalSkills', '').lower()  # Optional string input
 
         ml_input = {
-            '10th Marks': data.get('10thMarks', 0),
-            '12th Marks': data.get('12thMarks', 0),
-            'Graduation Marks': data.get('GraduationMarks', 0),
-            'Technical Score (out of 20)': data.get('TechnicalScore', 15),
-            'Quants': data.get('Quants', 15),
-            'Verbal': data.get('Verbal', 15),
-            'Number of Projects': data.get('projects', 0),
-            'Number of Internships': data.get('internships', 0),
-            'Java': 1 if 'java' in tech_skills else 0,
-            'Python': 1 if 'python' in tech_skills else 0,
-            'C++': 1 if 'c++' in tech_skills else 0,
-            'ML': 1 if 'ml' in tech_skills or 'machine learning' in tech_skills else 0,
-            'AI': 1 if 'ai' in tech_skills or 'artificial intelligence' in tech_skills else 0,
-            'SQL': 1 if 'sql' in tech_skills else 0,
-            'Tableau': 1 if 'tableau' in tech_skills else 0,
-            'JavaScript': 1 if 'javascript' in tech_skills or 'js' in tech_skills else 0,
-            'DSA': 1 if 'dsa' in tech_skills or 'data structure' in tech_skills else 0,
-            'ReactJS': 1 if 'react' in tech_skills else 0,
-            'MongoDB': 1 if 'mongodb' in tech_skills else 0,
-            'GenAI': 1 if 'genai' in tech_skills or 'generative ai' in tech_skills else 0,
-            'MobileDev': 1 if 'mobile' in tech_skills else 0,
-            'WebDev': 1 if 'web' in tech_skills else 0,
+            '10th Marks': data.get('10th Marks', 0),
+            '12th Marks': data.get('12th Marks', 0),
+            'Graduation Marks': data.get('Graduation Marks', 0),
+            'Technical Score (out of 20)': data.get('Technical Score (out of 20)', 0),
+            'Quants': data.get('Quants', 0),
+            'Verbal': data.get('Verbal', 0),
+            'Number of Projects': data.get('Number of Projects', 0),
+            'Number of Internships': data.get('Number of Internships', 0),
+            'Java': data.get('Java', 0),
+            'Python': data.get('Python', 0),
+            'C++': data.get('C++', 0),
+            'ML': data.get('ML', 0),
+            'AI': data.get('AI', 0),
+            'SQL': data.get('SQL', 0),
+            'Tableau': data.get('Tableau', 0),
+            'JavaScript': data.get('JavaScript', 0),
+            'DSA': data.get('DSA', 0),
+            'ReactJS': data.get('ReactJS', 0),
+            'MongoDB': data.get('MongoDB', 0),
+            'GenAI': data.get('GenAI', 0),
+            'MobileDev': data.get('MobileDev', 0),
+            'WebDev': data.get('WebDev', 0),
         }
 
-        for feature in selected_features:
-            if feature not in ml_input:
-                ml_input[feature] = 0
+        # Convert to DataFrame and reorder columns as per training
+        input_df = pd.DataFrame([ml_input])
+        input_df = input_df[selected_features]  # This ensures order and feature match
 
-        input_data = pd.DataFrame([ml_input])[selected_features]
-        
-        input_data = pd.DataFrame([ml_input])
-        print("DataFrame shape:", input_data.shape)
-        print("DataFrame columns:", input_data.columns.tolist())
+        # Predict
+        prediction = model.predict(input_df)[0]
+        probability = model.predict_proba(input_df)[0][1] * 100
 
-        prediction = model.predict(input_data)[0]
-        probability = model.predict_proba(input_data)[0][1] * 100
-
-        print(f"\nRaw prediction: {prediction}")      
-        print(f"Raw probability: {probability}")     
-        
         suggestions = generate_suggestions(ml_input)
 
-        
         return jsonify({
             'placement_status': int(prediction),
-            'probability': float(probability),
+            'probability': round(float(probability), 2),
             'suggestions': suggestions
         })
+
     except Exception as e:
         print("Prediction error:", e)
         return jsonify({'error': str(e)}), 400
+
 
 def generate_suggestions(student_data):
     suggestions = []
@@ -109,10 +104,8 @@ def generate_suggestions(student_data):
         suggestions.append("Expand into mobile app development.")
     if student_data['WebDev'] == 0:
         suggestions.append("Strengthen your web development skills.")
-    
+
     return suggestions
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-
-
